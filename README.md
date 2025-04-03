@@ -33,6 +33,6 @@ Then for integration we need to change quite a bit as GPU doesn't have threads a
 
 So enough of code analysis let`s compare CUDA to implementation of standart parallel integral, thread safe queue and thread-pool parallelization implementations.
 
-graphic
+![graphic](cuda_results.jpeg)
 
 So based on the graphic above we can see that CUDA is at the level of one of those or a little worse, except for second function where standart parallel implementation is just way worse so it is faster, but this happens because this code was runned on Nvidia gtx titan X which are almost ten years old and even though they are still pretty good, they are obviously worse then new CPUs, so this gives us this results, but still CUDA performms pretty good as the difference between implementations are at most around 50ms which is a pretty good result for 10 year old GPU.
