@@ -12,8 +12,7 @@
 double integrate_function(int function_id, const double x1_start, const double x1_end, const double x2_start, const double x2_end, const int x1_steps, const int x2_steps) {
     double *d_result, h_result = 0.0;
     cudaMalloc(&d_result, sizeof(double));
-    cudaMemcpyAsync(d_result, &h_result, sizeof(double), cudaMemcpyHostToDevice, 0);
-
+    cudaMemcpy(d_result, &h_result, sizeof(double), cudaMemcpyHostToDevice);
     double dx1 = (x1_end - x1_start) / x1_steps;
     double dx2 = (x2_end - x2_start) / x2_steps;
 
