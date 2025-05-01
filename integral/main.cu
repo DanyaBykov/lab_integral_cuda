@@ -23,9 +23,15 @@ double integrate_function(int function_id, const double x1_start, const double x
     gridSize.x = min(gridSize.x, 65535);
     gridSize.y = min(gridSize.y, 65535);
 
-    integrate<<<gridSize, blockSize>>>(function_id, x1_start, dx1, x2_start, dx2, x1_steps, x2_steps, d_result);
-    
-    cudaMemcpyAsync(&h_result, d_result, sizeof(double), cudaMemcpyDeviceToHost, 0);
+    if (function_id == 1) {
+        integrate_func1<<<gridSize, blockSize>>>(x1_start, dx1, x2_start, dx2, x1_steps, x2_steps, d_result);
+    } else if (function_id == 2) {
+        integrate_func2<<<gridSize, blockSize>>>(x1_start, dx1, x2_start, dx2, x1_steps, x2_steps, d_result);
+    } else if (function_id == 3) {
+        integrate_func3<<<gridSize, blockSize>>>(x1_start, dx1, x2_start, dx2, x1_steps, x2_steps, d_result);
+    }
+
+    cudaMemcpy(&h_result, d_result, sizeof(double), cudaMemcpyDeviceToHost);
     cudaFree(d_result);
     
     cudaDeviceSynchronize();

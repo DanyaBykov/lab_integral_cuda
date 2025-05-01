@@ -50,28 +50,66 @@ __device__ double function_3 (const double x1, const double x2) {
     return -1 * res;
 }
 
-__global__ void integrate(int function_id, const double x1_start, const double dx1, const double x2_start, const double dx2, const int x1_steps, const int x2_steps, double* d_result) {
+__global__ void integrate_func1(const double x1_start, const double dx1, const double x2_start, const double dx2, const int x1_steps, const int x2_steps, double* d_result) {
     __shared__ double local_sum[256];
     int count = threadIdx.x + threadIdx.y * blockDim.x;
     local_sum[count] = 0.0;
-    
+
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (i < x1_steps && j < x2_steps) {
         double x1 = x1_start + (i + 0.5) * dx1;
         double x2 = x2_start + (j + 0.5) * dx2;
+        local_sum[count] = function_1(x1, x2) * dx1 * dx2;
+    }
+    __syncthreads();
 
-        double local_result = 0.0;
-
-        if (function_id == 1) {
-            local_result = function_1(x1, x2) * dx1 * dx2;
-        } else if (function_id == 2) {
-            local_result = function_2(x1, x2) * dx1 * dx2;
-        } else if (function_id == 3) {
-            local_result = function_3(x1, x2) * dx1 * dx2;
+    if (count == 0) {
+        double blockSum = 0.0;
+        for (int k = 0; k < blockDim.x * blockDim.y; ++k) {
+            blockSum += local_sum[k];
         }
-        local_sum[count] = local_result;
+        atomicAddD(d_result, blockSum);
+    }
+}
+
+__global__ void integrate_func2(const double x1_start, const double dx1, const double x2_start, const double dx2, const int x1_steps, const int x2_steps, double* d_result) {
+    __shared__ double local_sum[256];
+    int count = threadIdx.x + threadIdx.y * blockDim.x;
+    local_sum[count] = 0.0;
+
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i < x1_steps && j < x2_steps) {
+        double x1 = x1_start + (i + 0.5) * dx1;
+        double x2 = x2_start + (j + 0.5) * dx2;
+        local_sum[count] = function_2(x1, x2) * dx1 * dx2;
+    }
+    __syncthreads();
+
+    if (count == 0) {
+        double blockSum = 0.0;
+        for (int k = 0; k < blockDim.x * blockDim.y; ++k) {
+            blockSum += local_sum[k];
+        }
+        atomicAddD(d_result, blockSum);
+    }
+}
+
+__global__ void integrate_func3(const double x1_start, const double dx1, const double x2_start, const double dx2, const int x1_steps, const int x2_steps, double* d_result) {
+    __shared__ double local_sum[256];
+    int count = threadIdx.x + threadIdx.y * blockDim.x;
+    local_sum[count] = 0.0;
+
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i < x1_steps && j < x2_steps) {
+        double x1 = x1_start + (i + 0.5) * dx1;
+        double x2 = x2_start + (j + 0.5) * dx2;
+        local_sum[count] = function_3(x1, x2) * dx1 * dx2;
     }
     __syncthreads();
 
